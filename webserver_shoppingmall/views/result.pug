@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+doctype html
 html
   head
     title Main
@@ -31,11 +31,15 @@ html
       .comment {
         margin-bottom: 10px;
       }
+      .rating-section {
+        margin-top: 20px;
+      }
   body
     .banner
       p.query= '검색어: ' + productname 
       a(href='/', class='home-btn') Home
     form(action='/search', method='get')
+      input(type='hidden', name='query', value=productname)
       button(type='submit', name='select', value='default') 정확도 순
       button(type='submit', name='select', value='expensive') 가격 높은 순
       button(type='submit', name='select', value='cheap') 가격 낮은 순
@@ -52,7 +56,7 @@ html
             p
               a(href=result.link) 웹사이트 이동
             .comment-section
-              form(action=`/comment`, method='POST')
+              form(action='/search/' + result.item, method='POST') 
                 input(type='text', name='comment', placeholder='댓글 입력')
                 input(type='submit', value='댓글 달기')
               if (result.comments && result.comments.length > 0)
@@ -60,4 +64,13 @@ html
                   p.comment= comment
               else
                 p.comment= '등록된 댓글이 없습니다.'
+            .rating-section
+              form(action='/search/' + result.item + '/rating', method='POST') 
+                select(name='rating')
+                  option(value='1') 1점
+                  option(value='2') 2점
+                  option(value='3') 3점
+                  option(value='4') 4점
+                  option(value='5') 5점
+                input(type='submit', value='평점 남기기')
         hr

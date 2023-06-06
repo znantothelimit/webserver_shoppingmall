@@ -135,10 +135,106 @@ function deleteItemsFromDatabase() {
     });
 }
 
+function saveCommentToDatabase(item, comment, commenter) {
+    return new Promise((resolve, reject) => {
+  
+      const query = `INSERT INTO comments (item, comment, commenter) VALUES (?, ?, ?)`; //예시
+      const values = [item, comment, commenter];
+  
+      connection.query(query, values, (error, results) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        console.log('Comment saved successfully');
+        resolve();
+      });
+    });
+  }
+
+function getCommentsFromDatabase(item) {
+    // 데이터베이스 쿼리를 사용하여 댓글 조회
+    const query = `SELECT * FROM comments WHERE item_name = ?`;
+    const values = [item];
+    
+    // 쿼리 실행
+    connection.query(query, values, (error, results) => {
+        if (error) {
+            console.error('Error retrieving comments from database: ' + error.stack);
+            return;
+        }
+
+        // 검색된 데이터를 JavaScript 변수에 저장
+        const comment = results.map((row) => {
+            return {commenter: row.commenter, comment: row.comment, created_at: row.created_at};
+        });
+
+        resolve(comment);
+    });
+}
+
+// 데이터베이스에 평점 저장하는 함수
+function saveRatingToDatabase(item, rating) {
+    connection.connect((err) => {
+      if (err) {
+        console.error('Error connecting to MySQL database: ', err);
+        return;
+      }
+  
+      const query = `INSERT INTO ratings (item, rating) VALUES (?, ?)`;
+      const values = [item, rating];
+  
+      connection.query(query, values, (err, results) => {
+        if (err) {
+          console.error('Error executing MySQL query: ', err);
+          return;
+        }
+  
+        console.log('Rating saved to database.');
+      });
+    });
+  }
+
+// 데이터베이스에서 평균 평점 조회하는 함수
+function getRatingFromDatabase(item) {
+    return new Promise((resolve, reject) => {
+      connection.connect((err) => {
+        if (err) {
+          console.error('Error connecting to MySQL database: ', err);
+          reject(err);
+          return;
+        }
+  
+        const query = `
+          SELECT AVG(rating) AS averageRating
+          FROM ratings
+          WHERE item = ?;
+        `;
+        const values = [item];
+  
+        connection.query(query, values, (err, results) => {
+          if (err) {
+            console.error('Error executing MySQL query: ', err);
+            reject(err);
+            return;
+          }
+  
+          const averageRating = results[0].averageRating;
+          resolve(averageRating);
+  
+        });
+      });
+    });
+  }
+
 module.exports = {
     getItemsFromDatabase,
     saveItemsToDatabase,
     deleteItemsFromDatabase,
     getUserFromDatabase,
-    saveUserToDatabase
+    saveUserToDatabase,
+    saveCommentToDatabase,
+    getCommentsFromDatabase,
+    saveRatingToDatabase,
+    getRatingFromDatabase,
 };

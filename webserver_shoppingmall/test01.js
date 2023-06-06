@@ -6,7 +6,7 @@ const url = require('url');
 const qs = require('querystring');
 const crypto = require('crypto');
 const mysql = require('mysql');
-const {saveItemsToDatabase, saveUserToDatabase, getUserFromDatabase} = require(
+const {saveItemsToDatabase, saveUserToDatabase, getUserFromDatabase, saveCommentToDatabase, getCommentsFromDatabase} = require(
     './database'
 );
 
@@ -52,8 +52,9 @@ app.get('/main', function (req, res) {
 });
 
 app.get('/search', function (req, res) {
+    var onSearch = req.query.query;
     var api_url = 'https://openapi.naver.com/v1/search/shop.json?query=' +
-            encodeURI(req.query.query) + '&display=50';
+            encodeURI(onSearch) + '&display=50';
     var options = {
         url: api_url,
         headers: {
@@ -73,47 +74,63 @@ app.get('/search', function (req, res) {
             const data = response.data;
             const items = data.items;
             var results = [];
-            /* 반복문 내에서 가격, 상품명, 카테고리 등의 특성을 변수에 저장 */
+
             for (var i = 0; i < items.length; i++) {
                 results[i] = [];
-                saveItemsToDatabase(items);
-            }
-            default_results = results;
-            const select = req.query;
+                var item = items[i];
+                var price = item.lprice;
+                var category = item.category1;
+                var name = item.title;
+                var link = item.link;
+                var image = item.image;
+                var mallName = item.mallName;
 
-            const query = 'SELECT * FROM itmes';
-            if (select === 'expensive') {
-                query += ' ORDER BY price DESC';
-            } else if (select === 'cheap') {
-                query += ' ORDER BY price ASC';
+                results[i] = {
+                    name,
+                    category,
+                    price,
+                    link,
+                    image,
+                    mallName
+                };
+
+                const query = `INSERT INTO items (price, category, name, link, image, mallName) VALUES (?, ?, ?, ?, ?, ?)`;
+                const values = [
+                    price,
+                    category,
+                    name,
+                    link,
+                    image,
+                    mallName
+                ];
+
+                connection.query(query, values, (error, results) => {});
             }
 
-            connection.query(query, (err, results) => {
-                // 이하 코드는 이전 코드와 동일
-                if (err) {
-                    console.error('Error executing query: ' + err.stack);
-                    res
-                        .status(500)
-                        .send('Error executing query');
-                    return;
-                }
-                if (select === 'default') {
-                    results = default_results;
-                }
-                res.render('result', {
-                    results: results,
-                    productname: req.query.query
-                });
-                console.log("IP : " + req.ip + " / 검색어 : " + req.query.query); // 콘솔 출력 추가
+            const select = req.query.select;
+            const default_result = results;
+
+            if (select == 'expensive') 
+                results = sys.DESCarr(results);
+            else if (select == 'cheap') 
+                results = sys.ASCarr(results);
+            else if (select == 'default') 
+                results = default_result;
+            else 
+                results = default_result;
+            
+            res.render('result', {
+                results: results,
+                productname: onSearch
             });
-            connection.end();
+            console.log("IP : " + req.ip + " / 검색어 : " + onSearch);
+
         })
         .catch((error) => {
             console.error('Error occurred while getting items:', error);
             res
                 .status(500)
                 .send('Error occurred while getting items:');
-            connection.end();
         });
 });
 
@@ -177,10 +194,27 @@ app.post('/comment', (req, res) => {
     const query = req.body.query; // 클라이언트에서 전송된 검색어
 
     // 댓글을 데이터베이스 또는 다른 저장소에 추가
-    saveCommentToDatabase(item, comment); // 데이터베이스에 댓글 저장하는 함수 호출
+    saveCommentToDatabase(item, comment, commenter); // 데이터베이스에 댓글 저장하는 함수 호출
 
     // 새로 추가된 댓글을 포함한 전체 댓글 목록을 조회
-    const comments = retrieveCommentsFromDatabase(item); // 데이터베이스에서 댓글 조회하는 함수 호출
+    const comments = getCommentsFromDatabase(item); // 데이터베이스에서 댓글 조회하는 함수 호출
+
+    // 댓글 목록을 클라이언트로 전송
+    const redirectURL = '/search?query=' + encodeURIComponent(query);
+    res.redirect(redirectURL);
+});
+
+// 평점 추가를 위한 POST 요청 핸들러
+app.post('/rating', (req, res) => {
+    const item = req.params.item; // 상품 이름을 파라미터로 받음
+    const rating = req.body.rating; // 클라이언트에서 전송된 댓글 내용
+    const query = req.body.query; // 클라이언트에서 전송된 검색어
+
+    // 평점을을 데이터베이스 또는 다른 저장소에 추가
+    saveRatingToDatabase(item, rating); // 데이터베이스에 댓글 저장하는 함수 호출
+
+    // 새로 추가된 평점을 포함한 전체 댓글 목록을 조회
+    const ratings = getRatingFromDatabase(item); // 데이터베이스에서 댓글 조회하는 함수 호출
 
     // 댓글 목록을 클라이언트로 전송
     const redirectURL = '/search?query=' + encodeURIComponent(query);
@@ -200,9 +234,9 @@ app.post('/login', (req, res) => {
             const {username, password} = qs.parse(data);
             // 회원 정보 저장
             const hashedPassword = crypto
-            .createHash('sha256')
-            .update(password)
-            .digest('hex');
+                .createHash('sha256')
+                .update(password)
+                .digest('hex');
 
             getUserFromDatabase(username)
                 .then((user) => {
