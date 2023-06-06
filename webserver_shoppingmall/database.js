@@ -104,7 +104,7 @@ function saveUserToDatabase(users) {
     return new Promise((resolve, reject) => {
         // 변수 값을 MySQL 데이터베이스에 저장
         const query = `INSERT INTO users (username, passwd) VALUES (?, ?)`;
-        const values = [users.username, users.passwd];
+        const values = [users.username, users.password];
         connection.query(query, values, (error, result) => {
           if (error) {
             reject(error);
