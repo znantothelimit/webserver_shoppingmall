@@ -13,7 +13,7 @@ connection.connect();
 function getItemsFromDatabase() {
     return new Promise((resolve, reject) => {
       // 데이터베이스에서 아이템을 검색하기 위한 쿼리
-      const query = 'SELECT * FROM items';
+      const query = `SELECT * FROM items`;
   
       // 쿼리 실행
       connection.query(query, (error, results, fields) => {
@@ -73,7 +73,7 @@ function saveItemsToDatabase(items) {
 function getUserFromDatabase(username) {
     return new Promise((resolve, reject) => {
       // 데이터베이스에서 아이템을 검색하기 위한 쿼리
-      const query = 'SELECT * FROM users WHERE username = ?';
+      const query = `SELECT * FROM users WHERE username = ?`;
     
       // 쿼리 실행
       connection.query(query, [username], (error, results, fields) => {
@@ -104,7 +104,7 @@ function saveUserToDatabase(users) {
     return new Promise((resolve, reject) => {
         // 변수 값을 MySQL 데이터베이스에 저장
         const query = `INSERT INTO users (username, passwd) VALUES (?, ?)`;
-        const values = [users.username, users.password];
+        const values = [users.username, users.passwd];
         connection.query(query, values, (error, result) => {
           if (error) {
             reject(error);
@@ -120,7 +120,7 @@ function saveUserToDatabase(users) {
 function deleteItemsFromDatabase() {
     return new Promise((resolve, reject) => {
       // 삭제할 아이템의 조건을 지정하는 쿼리
-      const query = "DELETE FROM items WHERE category = '사용자가 원하는 카테고리'";
+      const query = `DELETE FROM items WHERE category = '사용자가 원하는 카테고리'`;
   
       // 쿼리 실행
       connection.query(query, (error, results) => {
