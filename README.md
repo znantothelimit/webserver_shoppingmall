@@ -38,4 +38,10 @@ main.js를 통해 네이버 쇼핑으로부터 가져온 상품 데이터들을 
 ![flowchart](/img/flowchart.png)
 
 
-## Output
+## Env
+
+### Develop Env
+VS Code
+
+### Exec Env
+Linux Cent OS7, you need to install npm packages that exec needs (command : npm i ~~~)
