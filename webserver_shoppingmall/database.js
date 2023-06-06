@@ -107,7 +107,7 @@ function saveUserToDatabase(users) {
         const values = [users.username, users.password];
         connection.query(query, values, (error, result) => {
           if (error) {
-            rekect(error);
+            reject(error);
             return;
           }
           console.log('user saved successfully');
