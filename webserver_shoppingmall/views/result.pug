@@ -37,6 +37,7 @@ html
   body
     .banner
       p.query= '검색어: ' + productname 
+      a(href='/main', class='re_search') 다시 검색하러가기
       a(href='/', class='home-btn') Home
     form(action='/search', method='get')
       input(type='hidden', name='query', value=productname)
@@ -56,7 +57,7 @@ html
             p
               a(href=result.link) 웹사이트 이동
             .comment-section
-              form(action='/search/' + result.item, method='POST') 
+              form(action=`/search/${result.item}/comment`, method='POST') 
                 input(type='text', name='comment', placeholder='댓글 입력')
                 input(type='submit', value='댓글 달기')
               if (result.comments && result.comments.length > 0)
