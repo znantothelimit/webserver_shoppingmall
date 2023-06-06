@@ -138,7 +138,7 @@ function deleteItemsFromDatabase() {
 function saveCommentToDatabase(item, comment, commenter) {
     return new Promise((resolve, reject) => {
   
-      const query = `INSERT INTO comments (item, comment, commenter) VALUES (?, ?, ?)`; //예시
+      const query = `INSERT INTO comments (item_name, comment, commenter) VALUES (?, ?, ?)`; //예시
       const values = [item, comment, commenter];
   
       connection.query(query, values, (error, results) => {
