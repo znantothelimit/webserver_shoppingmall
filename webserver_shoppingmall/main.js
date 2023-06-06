@@ -252,10 +252,7 @@ app.post('/login', (req, res) => {
             user_ID = username;
 
             // 회원 정보 저장
-            const hashedPassword = crypto
-                .createHash('sha256')
-                .update(password)
-                .digest('hex');
+            const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
 
             getUserFromDatabase(username)
                 .then((user) => {
