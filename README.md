@@ -31,11 +31,48 @@ Server-Client 간 통신에서 포트번호는 서버 내에서 프로세스를 
 ### 웹서버 - 데이터베이스서버 통신 방식
 main.js를 통해 네이버 쇼핑으로부터 가져온 상품 데이터들을 알맞게 MySQL에서 테이블링하여 저장하고, Client 요청에 따라 알맞은 값을 데이터베이스로부터 반환
 
-![Databse](/img/dbblock.png)
+![Database](/img/dbblock.png)
 
 ### 순서도(Flowchart)
 
 ![flowchart](/img/flowchart.png)
+
+## Output
+
+![Output1](/img/commentandrating.png)
+
+검색 예 (일렉기타)
+
+![Output2](/img/itemsdb.png)
+
+검색결과가 items 테이블에 저장
+
+![Output3](/img/commentsdb.png)
+
+검색결과가 comments 테이블에 저장
+
+
+![Output4](/img/ratingdb.png)
+
+검색 결과가 ratings 테이블에 저장
+
+## 데이터베이스 테이블 정보
+
+### items 테이블
+
+![items](/img/idb.png)
+
+### users 테이블
+
+![users](/img/udb.png)
+
+### comments 테이블
+
+![comments](/img/cdb.png)
+
+### ratings 테이블
+
+![ratings](/img/rdb.png)
 
 
 ## Env
@@ -44,4 +81,5 @@ main.js를 통해 네이버 쇼핑으로부터 가져온 상품 데이터들을 
 VS Code
 
 ### Exec Env
+![env](/img/executingincentos.png)
 Linux Cent OS7, you need to install npm packages that exec needs (command : npm i ~~~)
