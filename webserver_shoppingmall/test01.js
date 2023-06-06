@@ -9,7 +9,7 @@ const mysql = require('mysql');
 const {saveItemsToDatabase, saveUserToDatabase, getUserFromDatabase, saveCommentToDatabase, getCommentsFromDatabase} = require(
     './database'
 );
-
+const sys = require('./system');
 const client_id = 'uR0FsbWPkbkFc2AFaUwy';
 const client_secret = 'PUq6k8Cvip';
 
