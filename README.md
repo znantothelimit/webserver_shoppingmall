@@ -31,7 +31,7 @@ Server-Client 간 통신에서 포트번호는 서버 내에서 프로세스를 
 ### 웹서버 - 데이터베이스서버 통신 방식
 main.js를 통해 네이버 쇼핑으로부터 가져온 상품 데이터들을 알맞게 MySQL에서 테이블링하여 저장하고, Client 요청에 따라 알맞은 값을 데이터베이스로부터 반환
 
-![Databse](/img/sqlblock.png)
+![Databse](/img/dbblock.png)
 
 ### 순서도
 
