@@ -155,11 +155,9 @@ function saveCommentToDatabase(item, comment, commenter) {
 function getCommentsFromDatabase(item) {
     return new Promise((resolve, reject) => {
     // 데이터베이스 쿼리를 사용하여 댓글 조회
-    const query = `SELECT * FROM comments WHERE item_name = ?`;
-    const values = [item];
-    
+    const query = `SELECT * FROM comments WHERE item_name='${item}'`;
     // 쿼리 실행
-    connection.query(query, values, (error, results) => {
+    connection.query(query, (error, results) => {
         if (error) {
             console.error('Error retrieving comments from database: ' + error.stack);
             return;

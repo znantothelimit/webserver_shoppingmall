@@ -36,7 +36,7 @@ const connection = mysql.createConnection({
 connection.connect();
 
 app.get('/main', function (req, res) {
-    console.log("IP : " + req.ip + "/ 접속");
+    console.log("IP: " + req.ip + " / 접속");
     const cookies = parseCookies(req.headers.cookie);
     const sessionId = cookies.session;
     const sessionData = session[sessionId];
@@ -51,11 +51,12 @@ app.get('/main', function (req, res) {
         username: sessionData.username
     });
 });
+
 app.get('/search', function (req, res) {
     onSearch = req.query.query;
-    var api_url = 'https://openapi.naver.com/v1/search/shop.json?query=' +
-            encodeURI(onSearch) + '&display=50';
-    var options = {
+    const api_url = 'https://openapi.naver.com/v1/search/shop.json?query=' +
+        encodeURI(onSearch) + '&display=50';
+    const options = {
         url: api_url,
         headers: {
             'X-Naver-Client-Id': client_id,
@@ -64,34 +65,49 @@ app.get('/search', function (req, res) {
     };
 
     axios
-        .get(api_url, {
-            headers: {
-                'X-Naver-Client-Id': client_id,
-                'X-Naver-Client-Secret': client_secret
-            }
-        })
-        .then((response) => {
+        .get(api_url, options)
+        .then(async (response) => {
             const data = response.data;
             const items = data.items;
-            var results = [];
+            const results = [];
 
-            for (var i = 0; i < items.length; i++) {
-                results[i] = [];
-                var item = items[i];
-                var price = item.lprice;
-                var category = item.category1;
-                var name = item.title;
-                var link = item.link;
-                var image = item.image;
-                var mallName = item.mallName;
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const price = item.lprice;
+                const category = item.category1;
+                const name = item.title;
+                const link = item.link;
+                const image = item.image;
+                const mallName = item.mallName;
 
+                // 댓글 가져오기
+                const comment = await new Promise((resolve, reject) => {
+                    getCommentsFromDatabase(name)
+                        .then(resolve)
+                        .catch(reject);
+                });
+
+                const get_raiting = await new Promise((resolve, reject) => {
+                    getRatingFromDatabase(name)
+                        .then(resolve)
+                        .catch(reject);
+                });
+
+                const comments = comment.map((c) => c.comment);
+                const commenters = comment.map((c) => c.commenter);
+                const created_ats = comment.map((c) => c.created_at);
+                const raiting = await get_raiting;
                 results[i] = {
                     name,
                     category,
                     price,
                     link,
                     image,
-                    mallName
+                    mallName,
+                    comments,
+                    commenters,
+                    created_ats,
+                    raiting,
                 };
 
                 const query = `INSERT INTO items (price, category, name, link, image, mallName) VALUES (?, ?, ?, ?, ?, ?)`;
@@ -105,34 +121,30 @@ app.get('/search', function (req, res) {
                 ];
 
                 connection.query(query, values, (error, results) => {});
+
             }
-
             const select = req.query.select;
-            const default_result = results;
+            let sortedResults;
 
-            if (select == 'expensive') 
-                results = sys.DESCarr(results);
-            else if (select == 'cheap') 
-                results = sys.ASCarr(results);
-            else if (select == 'default') 
-                results = default_result;
-            else 
-                results = default_result;
-            
+            if (select === 'expensive')
+                sortedResults = sys.DESCarr(results);
+            else if (select === 'cheap')
+                sortedResults = sys.ASCarr(results);
+            else
+                sortedResults = results;
+
             res.render('result', {
-                results: results,
+                results: sortedResults,
                 productname: onSearch
             });
-            console.log("IP : " + req.ip + " / 검색어 : " + onSearch);
-
+            console.log("IP: " + req.ip + " / 검색어: " + onSearch);
         })
         .catch((error) => {
             console.error('Error occurred while getting items:', error);
-            res
-                .status(500)
-                .send('Error occurred while getting items:');
+            res.status(500).send('Error occurred while getting items:');
         });
 });
+
 
 app.post('/register', (req, res) => {
     const body = [];
@@ -192,12 +204,8 @@ app.get('/search/comment', (req, res) => {
   const item = req.query.itemName; // 상품 이름을 파라미터로 받음
   const comment = req.query.comment; // 클라이언트에서 전송된 댓글 내용
   const commenter = user_ID;
-  console.log(commenter);
   // 댓글을 데이터베이스 또는 다른 저장소에 추가
   saveCommentToDatabase(item, comment, commenter); // 데이터베이스에 댓글 저장하는 함수 호출
-
-  // 새로 추가된 댓글을 포함한 전체 댓글 목록을 조회
-  const comments = getCommentsFromDatabase(item); // 데이터베이스에서 댓글 조회하는 함수 호출
 
   // 댓글 목록을 클라이언트로 전송
   const redirectURL = '/search?query=' + encodeURIComponent(onSearch);
@@ -208,7 +216,6 @@ app.get('/search/comment', (req, res) => {
 app.get('/search/rating', (req, res) => {
   const item = req.query.itemName; // 상품 이름을 파라미터로 받음
   const rating = req.query.rating; // 클라이언트에서 전송된 댓글 내용
-  console.log(item);
   // 평점을을 데이터베이스 또는 다른 저장소에 추가
   saveRatingToDatabase(item, rating); // 데이터베이스에 댓글 저장하는 함수 호출
 
@@ -233,7 +240,6 @@ app.post('/login', (req, res) => {
                 .toString();
             const {username, password} = qs.parse(data);
             user_ID = username;
-            console.log(user_ID);
 
             // 회원 정보 저장
             const hashedPassword = crypto
