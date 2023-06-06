@@ -189,6 +189,7 @@ app.post('/register', (req, res) => {
 
 // 댓글 추가를 위한 POST 요청 핸들러
 app.post('/search/:item/comment', (req, res) => {
+    const body = [];
     // 세션 쿠키에서 세션 ID 가져오기
     const sessionID = req.cookies.session;
 
@@ -221,6 +222,7 @@ app.post('/search/:item/comment', (req, res) => {
 
 // 평점 추가를 위한 POST 요청 핸들러
 app.post('/search/:item/rating', (req, res) => {
+    const body = [];
     const item = req.params.item; // 상품 이름을 파라미터로 받음
     const rating = req.body.rating; // 클라이언트에서 전송된 댓글 내용
     const query = req.body.query; // 클라이언트에서 전송된 검색어
