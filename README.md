@@ -33,7 +33,7 @@ main.js를 통해 네이버 쇼핑으로부터 가져온 상품 데이터들을 
 
 ![Databse](/img/dbblock.png)
 
-### 순서도
+### 순서도(Flowchart)
 
 ![flowchart](/img/flowchart.png)
 
