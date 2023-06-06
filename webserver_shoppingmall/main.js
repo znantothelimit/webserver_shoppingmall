@@ -38,7 +38,7 @@ app.set('view engine', 'pug');
 const connection = mysql.createConnection({
     host: 'localhost', // 데이터베이스 호스트
     user: 'root', // 데이터베이스 사용자 이름
-    password: 'root', // 데이터베이스 비밀번호
+    password: 'Mysql123!@#', // 데이터베이스 비밀번호
     database: 'nodejs_shoppingmall' // 데이터베이스 이름
 });
 connection.connect(); // 데이터베이스 연결
