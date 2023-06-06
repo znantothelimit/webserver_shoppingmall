@@ -44,34 +44,36 @@ html
       button(type='submit', name='select', value='default') 정확도 순
       button(type='submit', name='select', value='expensive') 가격 높은 순
       button(type='submit', name='select', value='cheap') 가격 낮은 순
-      each result in results
-        div(style='display: flex; align-items: center;')
-          div(style='margin-right: 20px;')
-            a(href=result.link)
-              img(src=result.image, width='200', height='200')
-          div
-            h2!= result.name
-            p!= '카테고리: ' + result.category
-            p!= '가격: ' + result.price
-            p!= '판매처: ' + result.mallName
-            p
-              a(href=result.link) 웹사이트 이동
-            .comment-section
-              form(action=`/search/${result.item}/comment`, method='POST') 
-                input(type='text', name='comment', placeholder='댓글 입력')
-                input(type='submit', value='댓글 달기')
-              if (result.comments && result.comments.length > 0)
-                each comment in result.comments
-                  p.comment= comment
-              else
-                p.comment= '등록된 댓글이 없습니다.'
-            .rating-section
-              form(action=`/search/${result.item}/rating`, method='POST') 
-                select(name='rating')
-                  option(value='1') 1점
-                  option(value='2') 2점
-                  option(value='3') 3점
-                  option(value='4') 4점
-                  option(value='5') 5점
-                input(type='submit', value='평점 남기기')
-        hr
+    each result in results
+      div(style='display: flex; align-items: center;')
+        div(style='margin-right: 20px;')
+          a(href=result.link)
+            img(src=result.image, width='200', height='200')
+        div
+          h2!= result.name
+          p!= '카테고리: ' + result.category
+          p!= '가격: ' + result.price
+          p!= '판매처: ' + result.mallName
+          p
+            a(href=result.link) 웹사이트 이동
+          .comment-section
+            form(action=`/search/comment`, method='get')
+              input(type='hidden', name='itemName', value=result.name)
+              input(type='text', name='comment', placeholder='댓글 입력')
+              input(type='submit', value='댓글 달기')
+            if (result.comments && result.comments.length > 0)
+              each comment in result.comments
+                p.comment= comment
+            else
+              p.comment= '등록된 댓글이 없습니다.'
+          .rating-section
+            form(action=`/search/rating`, method='get')
+              input(type='hidden', name='itemName', value=result.name)
+              select(name='rating')
+                option(value='1') 1점
+                option(value='2') 2점
+                option(value='3') 3점
+                option(value='4') 4점
+                option(value='5') 5점
+              input(type='submit', value='평점 남기기')
+    hr

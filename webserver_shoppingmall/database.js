@@ -3,7 +3,7 @@ const mysql = require('mysql');
 const connection = mysql.createConnection({
     host: 'localhost', // centos 서버 아이피
     user: 'root', // oracle12
-    password: 'Mysql123!@#', // Mysql123!@#
+    password: 'root', // Mysql123!@#
     database: 'nodejs_shoppingmall' // nodejs_shoppingmall
 });
 
@@ -153,6 +153,7 @@ function saveCommentToDatabase(item, comment, commenter) {
   }
 
 function getCommentsFromDatabase(item) {
+    return new Promise((resolve, reject) => {
     // 데이터베이스 쿼리를 사용하여 댓글 조회
     const query = `SELECT * FROM comments WHERE item_name = ?`;
     const values = [item];
@@ -171,16 +172,11 @@ function getCommentsFromDatabase(item) {
 
         resolve(comment);
     });
-}
+})}
 
 // 데이터베이스에 평점 저장하는 함수
 function saveRatingToDatabase(item, rating) {
-    connection.connect((err) => {
-      if (err) {
-        console.error('Error connecting to MySQL database: ', err);
-        return;
-      }
-  
+
       const query = `INSERT INTO ratings (item, rating) VALUES (?, ?)`;
       const values = [item, rating];
   
@@ -192,19 +188,13 @@ function saveRatingToDatabase(item, rating) {
   
         console.log('Rating saved to database.');
       });
-    });
-  }
+    };
+  
 
 // 데이터베이스에서 평균 평점 조회하는 함수
 function getRatingFromDatabase(item) {
     return new Promise((resolve, reject) => {
-      connection.connect((err) => {
-        if (err) {
-          console.error('Error connecting to MySQL database: ', err);
-          reject(err);
-          return;
-        }
-  
+
         const query = `
           SELECT AVG(rating) AS averageRating
           FROM ratings
@@ -224,8 +214,8 @@ function getRatingFromDatabase(item) {
   
         });
       });
-    });
-  }
+    };
+
 
 module.exports = {
     getItemsFromDatabase,

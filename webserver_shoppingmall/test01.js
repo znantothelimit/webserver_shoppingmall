@@ -6,8 +6,7 @@ const url = require('url');
 const qs = require('querystring');
 const crypto = require('crypto');
 const mysql = require('mysql');
-const session = require('express-session');
-const {saveItemsToDatabase, saveUserToDatabase, getUserFromDatabase, saveCommentToDatabase, getCommentsFromDatabase} = require(
+const {saveItemsToDatabase, saveUserToDatabase, getUserFromDatabase, saveCommentToDatabase, getCommentsFromDatabase, saveRatingToDatabase, getRatingFromDatabase} = require(
     './database'
 );
 const sys = require('./system');
@@ -22,14 +21,16 @@ const parseCookies = (cookie = '') => cookie
         return acc;
     }, {});
 
+const session = {};
 const users = {};
-
+var onSearch;
+var user_ID;
 app.set('view engine', 'pug');
 
 const connection = mysql.createConnection({
     host: 'localhost', // centos 서버 아이피
     user: 'root', // oracle12
-    password: 'Mysql123!@#', // Mysql123!@#
+    password: 'root', // Mysql123!@#
     database: 'nodejs_shoppingmall' // nodejs_shoppingmall
 });
 connection.connect();
@@ -50,9 +51,8 @@ app.get('/main', function (req, res) {
         username: sessionData.username
     });
 });
-
 app.get('/search', function (req, res) {
-    var onSearch = req.query.query;
+    onSearch = req.query.query;
     var api_url = 'https://openapi.naver.com/v1/search/shop.json?query=' +
             encodeURI(onSearch) + '&display=50';
     var options = {
@@ -187,61 +187,39 @@ app.post('/register', (req, res) => {
         });
 });
 
-// 댓글 추가를 위한 POST 요청 핸들러
-app.post('/search/:item/comment', (req, res) => {
-    const body = [];
-    // 세션 쿠키에서 세션 ID 가져오기
-    const sessionID = req.cookies.session;
+// 댓글 추가
+app.get('/search/comment', (req, res) => {
+  const item = req.query.itemName; // 상품 이름을 파라미터로 받음
+  const comment = req.query.comment; // 클라이언트에서 전송된 댓글 내용
+  const commenter = user_ID;
+  console.log(commenter);
+  // 댓글을 데이터베이스 또는 다른 저장소에 추가
+  saveCommentToDatabase(item, comment, commenter); // 데이터베이스에 댓글 저장하는 함수 호출
 
-    // 세션 객체에서 사용자 정보 가져오기
-    const sessionData = session[sessionID];
-    const username = sessionData.username;
+  // 새로 추가된 댓글을 포함한 전체 댓글 목록을 조회
+  const comments = getCommentsFromDatabase(item); // 데이터베이스에서 댓글 조회하는 함수 호출
 
-    const item = req.params.item; // 상품 이름을 파라미터로 받음
-    const comment = req.body.comment; // 클라이언트에서 전송된 댓글 내용
-    const query = req.body.query; // 클라이언트에서 전송된 검색어
-
-    saveCommentToDatabase(item, comment, username)
-        .then(() => {
-            // 새로 추가된 댓글을 포함한 전체 댓글 목록을 조회
-            return getCommentsFromDatabase(item);
-        })
-        .then((comments) => {
-            // 댓글 목록을 클라이언트로 전송
-            const redirectURL = '/search?query=' + encodeURIComponent(query);
-            res.redirect(redirectURL);
-        })
-        .catch((error) => {
-            console.error('댓글 추가 중 오류 발생:', error);
-            // 오류 처리를 위한 코드 추가
-            res
-                .status(500)
-                .send('댓글을 추가하는 도중 오류가 발생했습니다.');
-        });
+  // 댓글 목록을 클라이언트로 전송
+  const redirectURL = '/search?query=' + encodeURIComponent(onSearch);
+  res.redirect(redirectURL);
 });
 
-app.post('/search/:item/rating', (req, res) => {
-  const item = req.params.item; // 상품 이름을 파라미터로 받음
-  const rating = req.body.rating; // 클라이언트에서 전송된 평점
-  const query = req.body.query; // 클라이언트에서 전송된 검색어
+// 평점 추가
+app.get('/search/rating', (req, res) => {
+  const item = req.query.itemName; // 상품 이름을 파라미터로 받음
+  const rating = req.query.rating; // 클라이언트에서 전송된 댓글 내용
+  console.log(item);
+  // 평점을을 데이터베이스 또는 다른 저장소에 추가
+  saveRatingToDatabase(item, rating); // 데이터베이스에 댓글 저장하는 함수 호출
 
-  // 평점을 데이터베이스에 추가하는 함수 호출
-  saveRatingToDatabase(item, rating)
-    .then(() => {
-      // 새로 추가된 평점을 포함한 전체 평점 목록을 조회하는 함수 호출
-      return getRatingsFromDatabase(item);
-    })
-    .then((ratings) => {
-      // 평점 목록을 클라이언트로 전송
-      const redirectURL = '/search?query=' + encodeURIComponent(query);
-      res.redirect(redirectURL);
-    })
-    .catch((error) => {
-      console.error('평점 추가 중 오류 발생:', error);
-      // 오류 처리를 위한 코드 추가
-      res.status(500).send('평점을 추가하는 도중 오류가 발생했습니다.');
-    });
+  // 새로 추가된 평점을 포함한 전체 댓글 목록을 조회
+  const ratings = getRatingFromDatabase(item); // 데이터베이스에서 댓글 조회하는 함수 호출
+
+  // 댓글 목록을 클라이언트로 전송
+  const redirectURL = '/search?query=' + encodeURIComponent(onSearch);
+  res.redirect(redirectURL);
 });
+
 
 app.post('/login', (req, res) => {
     const body = [];
@@ -254,6 +232,9 @@ app.post('/login', (req, res) => {
                 .concat(body)
                 .toString();
             const {username, password} = qs.parse(data);
+            user_ID = username;
+            console.log(user_ID);
+
             // 회원 정보 저장
             const hashedPassword = crypto
                 .createHash('sha256')
@@ -311,6 +292,6 @@ app.get('/register', (req, res) => {
     res.render('register');
 });
 
-app.listen(3000, '10.0.3.15', function () {
-    console.log('http://10.0.3.15:3000/ app listening on port 3000!');
+app.listen(3000, '192.168.35.120', function () {
+    console.log('http://192.168.35.120:3000/ app listening on port 3000!');
 });
