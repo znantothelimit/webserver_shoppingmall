@@ -64,7 +64,7 @@ html
             if (result.comments && result.comments.length > 0)
               each comment in result.comments
                 p
-                  span.commenter= comment.commenter + ': '  // 수정: 댓글 작성자 출력
+                  span.commenter= comment.commenter + ': ' 
                   span.comment= comment.text
             else
               p.comment= '등록된 댓글이 없습니다.'
