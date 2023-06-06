@@ -1,0 +1,35 @@
+doctype html
+html
+ head
+    meta(charset='UTF-8')
+    title register
+    style.
+      h1 {
+        font-size: 100px;
+      }
+      body {
+        background-color: white;
+      }
+      .banner {
+        background-color: #f2f2f2;
+        padding: 14px;
+        text-align: center;
+      }
+      .home-btn {
+        position: absolute;
+        top: 10px;
+        right: 12px;
+      }
+ body
+    .banner
+      a(href='/', class='home-btn') Home
+    form(action='/register', method='post')
+      div(style='text-align: center;')
+        h1 회원가입
+        img(src='https://github.com/r1ax0gus/MindBlowing/raw/main/pics/img04.jpg', alt='My Image', width='400', height='400')
+        br
+        input(type='text', name='username', placeholder='ID', style='width: 150pt; height: 25pt;')
+        br
+        input(type='password', name='password', placeholder='PW', style='width: 150pt; height: 25pt;')
+        br
+        button(type='submit', style='width: 80pt; height: 30pt;') 회원가입

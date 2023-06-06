@@ -1,0 +1,44 @@
+doctype html
+html
+  head
+    meta(charset='UTF-8')
+    title entry
+    style.
+      h1 {
+        font-size: 80px;
+      }
+      body {
+        background-color: white;
+      }  
+      .banner {
+        background-color: #f2f2f2;
+        padding: 6px;
+        text-align: center;
+        overflow: hidden;
+      }
+      .banner-text {
+        display: inline-block;
+        white-space: nowrap;
+        animation: banner-animation 5s linear infinite;
+      }
+      @keyframes banner-animation {
+        0% {
+          transform: translateX(100%);
+        }
+        100% {
+          transform: translateX(-100%);
+        }
+      }
+  body
+    .banner
+      span.banner-text 세계 최대 규모의 쪽지사이트
+    div(style='text-align: center;')
+      h1 Welcome to Jae-Ho World
+      img(src='https://github.com/r1ax0gus/MindBlowing/raw/main/pics/img04.jpg', alt='My Image', width='400', height='400')
+      br
+      br
+      form(action='/register', method='get')
+        button(type='submit', style='width: 80pt; height: 30pt;') 회원가입
+      br
+      form(action='/login', method='get')
+        button(type='submit', style='width: 80pt; height: 30pt;') 로그인

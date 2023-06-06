@@ -1,0 +1,39 @@
+doctype html
+html
+  head
+    meta(charset='UTF-8')
+    title main
+    style.
+      h1 {
+        font-size: 100px;
+        color: green;
+      }
+      body {
+        background-color: orange;
+      }
+      .banner {
+        background-color: #f2f2f2;
+        padding: 14px;
+        text-align: center;
+      }
+      .home-btn {
+        position: absolute;
+        top: 10px;
+        right: 12px;
+      }
+      .user {
+        position: absolute;
+        top: -2px;
+        left: 12px;
+      }
+  body
+    .banner
+      a(href='/', class='home-btn') Home
+      p.user User : #{username}
+    form(action='/search', method='get')
+      div(style='text-align: center;')
+        h1 Google
+        img(src='https://github.com/r1ax0gus/MindBlowing/raw/main/pics/img04.jpg', alt='My Image', width='400', height='400')
+        br
+        input(type='text', name='query', placeholder='검색어를 입력하세요', style='width: 150pt; height: 25pt;')
+        button(type='submit', style='width: 35pt; height: 30pt;') 검색
