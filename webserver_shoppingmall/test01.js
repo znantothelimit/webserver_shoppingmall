@@ -6,6 +6,7 @@ const url = require('url');
 const qs = require('querystring');
 const crypto = require('crypto');
 const mysql = require('mysql');
+const session = require('express-session');
 const {saveItemsToDatabase, saveUserToDatabase, getUserFromDatabase, saveCommentToDatabase, getCommentsFromDatabase} = require(
     './database'
 );
@@ -189,19 +190,34 @@ app.post('/register', (req, res) => {
 
 // 댓글 추가를 위한 POST 요청 핸들러
 app.post('/comment', (req, res) => {
+    // 세션 쿠키에서 세션 ID 가져오기
+    const sessionID = req.cookies.session;
+
+    // 세션 객체에서 사용자 정보 가져오기
+    const sessionData = session[sessionID];
+    const username = sessionData.username;
+
     const item = req.params.item; // 상품 이름을 파라미터로 받음
     const comment = req.body.comment; // 클라이언트에서 전송된 댓글 내용
     const query = req.body.query; // 클라이언트에서 전송된 검색어
 
-    // 댓글을 데이터베이스 또는 다른 저장소에 추가
-    saveCommentToDatabase(item, comment, commenter); // 데이터베이스에 댓글 저장하는 함수 호출
-
-    // 새로 추가된 댓글을 포함한 전체 댓글 목록을 조회
-    const comments = getCommentsFromDatabase(item); // 데이터베이스에서 댓글 조회하는 함수 호출
-
-    // 댓글 목록을 클라이언트로 전송
-    const redirectURL = '/search?query=' + encodeURIComponent(query);
-    res.redirect(redirectURL);
+    saveCommentToDatabase(item, comment, username)
+        .then(() => {
+            // 새로 추가된 댓글을 포함한 전체 댓글 목록을 조회
+            return getCommentsFromDatabase(item);
+        })
+        .then((comments) => {
+            // 댓글 목록을 클라이언트로 전송
+            const redirectURL = '/search?query=' + encodeURIComponent(query);
+            res.redirect(redirectURL);
+        })
+        .catch((error) => {
+            console.error('댓글 추가 중 오류 발생:', error);
+            // 오류 처리를 위한 코드 추가
+            res
+                .status(500)
+                .send('댓글을 추가하는 도중 오류가 발생했습니다.');
+        });
 });
 
 // 평점 추가를 위한 POST 요청 핸들러
