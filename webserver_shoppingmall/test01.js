@@ -6,9 +6,15 @@ const url = require('url');
 const qs = require('querystring');
 const crypto = require('crypto');
 const mysql = require('mysql');
-const {saveItemsToDatabase, saveUserToDatabase, getUserFromDatabase, saveCommentToDatabase, getCommentsFromDatabase, saveRatingToDatabase, getRatingFromDatabase} = require(
-    './database'
-);
+const {
+    saveItemsToDatabase,
+    saveUserToDatabase,
+    getUserFromDatabase,
+    saveCommentToDatabase,
+    getCommentsFromDatabase,
+    saveRatingToDatabase,
+    getRatingFromDatabase
+} = require('./database');
 const sys = require('./system');
 const client_id = 'uR0FsbWPkbkFc2AFaUwy';
 const client_secret = 'PUq6k8Cvip';
@@ -189,37 +195,43 @@ app.post('/register', (req, res) => {
 
 // 댓글 추가
 app.get('/search/comment', (req, res) => {
-  const item = req.query.itemName; // 상품 이름을 파라미터로 받음
-  const comment = req.query.comment; // 클라이언트에서 전송된 댓글 내용
-  const commenter = user_ID;
-  console.log(commenter);
-  // 댓글을 데이터베이스 또는 다른 저장소에 추가
-  saveCommentToDatabase(item, comment, commenter); // 데이터베이스에 댓글 저장하는 함수 호출
+    const item = req.query.itemName; // 상품 이름을 파라미터로 받음
+    const comment = req.query.comment; // 클라이언트에서 전송된 댓글 내용
+    const commenter = user_ID;
+    console.log(commenter);
+    // 댓글을 데이터베이스 또는 다른 저장소에 추가
+    saveCommentToDatabase(item, comment, commenter); // 데이터베이스에 댓글 저장하는 함수 호출
 
-  // 새로 추가된 댓글을 포함한 전체 댓글 목록을 조회
-  const comments = getCommentsFromDatabase(item); // 데이터베이스에서 댓글 조회하는 함수 호출
+    // 새로 추가된 댓글을 포함한 전체 댓글 목록을 조회
+    const comments = getCommentsFromDatabase(item); // 데이터베이스에서 댓글 조회하는 함수 호출
 
-  // 댓글 목록을 클라이언트로 전송
-  const redirectURL = '/search?query=' + encodeURIComponent(onSearch);
-  res.redirect(redirectURL);
+    const redirectURL = '/search?query=' + encodeURIComponent(onSearch);
+    // 댓글 목록을 클라이언트로 전송
+    res.render('result', {
+        commenter: commenter,
+        comments: comments,
+        redirectURL: redirectURL // 추가: 리다이렉트 URL을 템플릿에 전달
+    });
 });
 
 // 평점 추가
 app.get('/search/rating', (req, res) => {
-  const item = req.query.itemName; // 상품 이름을 파라미터로 받음
-  const rating = req.query.rating; // 클라이언트에서 전송된 댓글 내용
-  console.log(item);
-  // 평점을을 데이터베이스 또는 다른 저장소에 추가
-  saveRatingToDatabase(item, rating); // 데이터베이스에 댓글 저장하는 함수 호출
+    const item = req.query.itemName; // 상품 이름을 파라미터로 받음
+    const rating = req.query.rating; // 클라이언트에서 전송된 평점 내용
+    console.log(item);
+    // 평점을 데이터베이스 또는 다른 저장소에 추가
+    saveRatingToDatabase(item, rating); // 데이터베이스에 평점 저장하는 함수 호출
 
-  // 새로 추가된 평점을 포함한 전체 댓글 목록을 조회
-  const ratings = getRatingFromDatabase(item); // 데이터베이스에서 댓글 조회하는 함수 호출
+    // 새로 추가된 평점을 포함한 전체 평점 목록을 조회
+    const ratings = getRatingFromDatabase(item); // 데이터베이스에서 평점 조회하는 함수 호출
 
-  // 댓글 목록을 클라이언트로 전송
-  const redirectURL = '/search?query=' + encodeURIComponent(onSearch);
-  res.redirect(redirectURL);
+    // 평점 목록을 클라이언트로 전송
+    const redirectURL = '/search?query=' + encodeURIComponent(onSearch);
+    res.render('result', {
+        rating: ratings,
+        redirectURL: redirectURL // 추가: 리다이렉트 URL을 템플릿에 전달
+    });
 });
-
 
 app.post('/login', (req, res) => {
     const body = [];

@@ -57,13 +57,15 @@ html
           p
             a(href=result.link) 웹사이트 이동
           .comment-section
-            form(action=`/search/comment`, method='get')
+            form(action=redirectURL, method='get')
               input(type='hidden', name='itemName', value=result.name)
               input(type='text', name='comment', placeholder='댓글 입력')
               input(type='submit', value='댓글 달기')
             if (result.comments && result.comments.length > 0)
               each comment in result.comments
-                p.comment= comment
+                p
+                  span.commenter= comment.commenter + ': '  // 수정: 댓글 작성자 출력
+                  span.comment= comment.text
             else
               p.comment= '등록된 댓글이 없습니다.'
           .rating-section
@@ -76,5 +78,6 @@ html
                 option(value='4') 4점
                 option(value='5') 5점
               input(type='submit', value='평점 남기기')
-              p.rating= result.rating
+            if (result.rating)
+              p.rating 평점: #{result.rating}  
     hr
