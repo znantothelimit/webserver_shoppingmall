@@ -7,7 +7,6 @@ const qs = require('querystring');
 const crypto = require('crypto');
 const mysql = require('mysql');
 const {
-    saveItemsToDatabase,
     saveUserToDatabase,
     getUserFromDatabase,
     saveCommentToDatabase,
@@ -97,6 +96,7 @@ app.get('/search', function (req, res) {
                         .catch(reject);
                 });
 
+                // 별점 가져오기
                 const get_raiting = await new Promise((resolve, reject) => {
                     getRatingFromDatabase(name)
                         .then(resolve)
@@ -120,6 +120,7 @@ app.get('/search', function (req, res) {
                     raiting,
                 };
 
+                //DB에 상품 정보 저장
                 const query = `INSERT INTO items (price, category, name, link, image, mallName) VALUES (?, ?, ?, ?, ?, ?)`;
                 const values = [
                     price,
@@ -214,10 +215,9 @@ app.get('/search/comment', (req, res) => {
     const item = req.query.itemName; // 상품 이름을 파라미터로 받음
     const comment = req.query.comment; // 클라이언트에서 전송된 댓글 내용
     const commenter = user_ID;
-    // 댓글을 데이터베이스 또는 다른 저장소에 추가
+
     saveCommentToDatabase(item, comment, commenter); // 데이터베이스에 댓글 저장하는 함수 호출
 
-    // 댓글 목록을 클라이언트로 전송
     const redirectURL = '/search?query=' + encodeURIComponent(onSearch);
     res.redirect(redirectURL);
 });
@@ -226,13 +226,9 @@ app.get('/search/comment', (req, res) => {
 app.get('/search/rating', (req, res) => {
     const item = req.query.itemName; // 상품 이름을 파라미터로 받음
     const rating = req.query.rating; // 클라이언트에서 전송된 평점
-    // 평점을 데이터베이스 또는 다른 저장소에 추가
+
     saveRatingToDatabase(item, rating); // 데이터베이스에 평점 저장하는 함수 호출
 
-    // 새로 추가된 평점을 포함한 전체 댓글 목록을 조회
-    const ratings = getRatingFromDatabase(item); // 데이터베이스에서 댓글 조회하는 함수 호출
-
-    // 댓글 목록을 클라이언트로 전송
     const redirectURL = '/search?query=' + encodeURIComponent(onSearch);
     res.redirect(redirectURL);
 });
@@ -308,6 +304,7 @@ app.get('/register', (req, res) => {
     res.render('register');
 });
 
+// 서버실행
 app.listen(3000, '192.168.35.120', function () {
     console.log('http://192.168.35.120:3000/ app listening on port 3000!');
 });
