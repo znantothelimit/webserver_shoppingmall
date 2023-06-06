@@ -220,22 +220,27 @@ app.post('/search/:item/comment', (req, res) => {
         });
 });
 
-// 평점 추가를 위한 POST 요청 핸들러
 app.post('/search/:item/rating', (req, res) => {
-    const body = [];
-    const item = req.params.item; // 상품 이름을 파라미터로 받음
-    const rating = req.body.rating; // 클라이언트에서 전송된 댓글 내용
-    const query = req.body.query; // 클라이언트에서 전송된 검색어
+  const item = req.params.item; // 상품 이름을 파라미터로 받음
+  const rating = req.body.rating; // 클라이언트에서 전송된 평점
+  const query = req.body.query; // 클라이언트에서 전송된 검색어
 
-    // 평점을을 데이터베이스 또는 다른 저장소에 추가
-    saveRatingToDatabase(item, rating); // 데이터베이스에 댓글 저장하는 함수 호출
-
-    // 새로 추가된 평점을 포함한 전체 댓글 목록을 조회
-    const ratings = getRatingFromDatabase(item); // 데이터베이스에서 댓글 조회하는 함수 호출
-
-    // 댓글 목록을 클라이언트로 전송
-    const redirectURL = '/search?query=' + encodeURIComponent(query);
-    res.redirect(redirectURL);
+  // 평점을 데이터베이스에 추가하는 함수 호출
+  saveRatingToDatabase(item, rating)
+    .then(() => {
+      // 새로 추가된 평점을 포함한 전체 평점 목록을 조회하는 함수 호출
+      return getRatingsFromDatabase(item);
+    })
+    .then((ratings) => {
+      // 평점 목록을 클라이언트로 전송
+      const redirectURL = '/search?query=' + encodeURIComponent(query);
+      res.redirect(redirectURL);
+    })
+    .catch((error) => {
+      console.error('평점 추가 중 오류 발생:', error);
+      // 오류 처리를 위한 코드 추가
+      res.status(500).send('평점을 추가하는 도중 오류가 발생했습니다.');
+    });
 });
 
 app.post('/login', (req, res) => {
