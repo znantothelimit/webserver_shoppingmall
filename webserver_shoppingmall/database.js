@@ -5,8 +5,9 @@ const connection = mysql.createConnection({
     user: 'root', // oracle12
     password: 'Mysql123!@#', // Mysql123!@#
     database: 'nodejs_shoppingmall' // nodejs_shoppingmall
-  });
-  connection.connect();
+});
+
+connection.connect();
 
 // MySQL 데이터베이스에서 아이템을 검색하고 JavaScript 변수에 저장하는 함수
 function getItemsFromDatabase() {
