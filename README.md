@@ -37,25 +37,6 @@ main.js를 통해 네이버 쇼핑으로부터 가져온 상품 데이터들을 
 
 ![flowchart](/img/flowchart.png)
 
-## Output
-
-![Output1](/img/commentandrating.png)
-
-검색 예 (일렉기타)
-
-![Output2](/img/itemsdb.png)
-
-검색결과가 items 테이블에 저장
-
-![Output3](/img/commentsdb.png)
-
-검색결과가 comments 테이블에 저장
-
-
-![Output4](/img/ratingdb.png)
-
-검색 결과가 ratings 테이블에 저장
-
 ## 데이터베이스 테이블 정보
 
 ### items 테이블
@@ -74,6 +55,24 @@ main.js를 통해 네이버 쇼핑으로부터 가져온 상품 데이터들을 
 
 ![ratings](/img/rdb.png)
 
+## Output
+
+![Output1](/img/commentandrating.png)
+
+검색 예 (일렉기타)
+
+![Output2](/img/itemsdb.png)
+
+검색결과가 items 테이블에 저장
+
+![Output3](/img/commentsdb.png)
+
+검색결과가 comments 테이블에 저장
+
+
+![Output4](/img/ratingdb.png)
+
+검색 결과가 ratings 테이블에 저장
 
 ## Env
 
