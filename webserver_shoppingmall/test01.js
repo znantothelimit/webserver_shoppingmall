@@ -22,7 +22,6 @@ const parseCookies = (cookie = '') => cookie
         return acc;
     }, {});
 
-const session = {};
 const users = {};
 
 app.set('view engine', 'pug');
