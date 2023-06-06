@@ -198,11 +198,16 @@ app.post('/login', (req, res) => {
                 .concat(body)
                 .toString();
             const {username, password} = qs.parse(data);
+            // 회원 정보 저장
+            const hashedPassword = crypto
+            .createHash('sha256')
+            .update(password)
+            .digest('hex');
 
             getUserFromDatabase(username)
                 .then((user) => {
                     // 검색된 사용자 정보를 이용하여 작업 수행 로그인 실패 처리
-                    if (user.length === 0 || password !== user[0].passwd) {
+                    if (user.length === 0 || hashedPassword !== user[0].passwd) {
                         res.send("<script>alert('로그인 실패'); window.location.href='/login';</script>");
                         return;
                     }
