@@ -3,7 +3,7 @@ const mysql = require('mysql');
 const connection = mysql.createConnection({
     host: 'localhost', // centos 서버 아이피
     user: 'root', // oracle12
-    password: 'root', // Mysql123!@#
+    password: 'Mysql123!@#', // Mysql123!@#
     database: 'nodejs_shoppingmall' // nodejs_shoppingmall
 });
 
