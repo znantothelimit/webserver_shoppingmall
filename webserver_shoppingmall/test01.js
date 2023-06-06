@@ -188,7 +188,7 @@ app.post('/register', (req, res) => {
 });
 
 // 댓글 추가
-app.post('/search/comment', (req, res) => {
+app.get('/search/comment', (req, res) => {
   const item = req.query.itemName; // 상품 이름을 파라미터로 받음
   const comment = req.query.comment; // 클라이언트에서 전송된 댓글 내용
   const commenter = user_ID;
@@ -205,7 +205,7 @@ app.post('/search/comment', (req, res) => {
 });
 
 // 평점 추가
-app.post('/search/rating', (req, res) => {
+app.get('/search/rating', (req, res) => {
   const item = req.query.itemName; // 상품 이름을 파라미터로 받음
   const rating = req.query.rating; // 클라이언트에서 전송된 댓글 내용
   console.log(item);

@@ -57,7 +57,7 @@ html
           p
             a(href=result.link) 웹사이트 이동
           .comment-section
-            form(action=`/search/comment`, method='post')
+            form(action=`/search/comment`, method='get')
               input(type='hidden', name='itemName', value=result.name)
               input(type='text', name='comment', placeholder='댓글 입력')
               input(type='submit', value='댓글 달기')
@@ -67,7 +67,7 @@ html
             else
               p.comment= '등록된 댓글이 없습니다.'
           .rating-section
-            form(action=`/search/rating`, method='post')
+            form(action=`/search/rating`, method='get')
               input(type='hidden', name='itemName', value=result.name)
               select(name='rating')
                 option(value='1') 1점
@@ -76,4 +76,5 @@ html
                 option(value='4') 4점
                 option(value='5') 5점
               input(type='submit', value='평점 남기기')
+              p.rating = rating
     hr
