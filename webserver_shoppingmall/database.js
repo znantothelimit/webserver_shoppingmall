@@ -1,3 +1,13 @@
+const mysql = require('mysql');
+
+const connection = mysql.createConnection({
+    host: 'localhost', // centos 서버 아이피
+    user: 'root', // oracle12
+    password: 'Mysql123!@#', // Mysql123!@#
+    database: 'nodejs_shoppingmall' // nodejs_shoppingmall
+  });
+  connection.connect();
+
 // MySQL 데이터베이스에서 아이템을 검색하고 JavaScript 변수에 저장하는 함수
 function getItemsFromDatabase() {
     return new Promise((resolve, reject) => {
