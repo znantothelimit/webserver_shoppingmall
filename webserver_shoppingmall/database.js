@@ -1,228 +1,310 @@
+const express = require('express');
+const app = express();
+const axios = require('axios');
+const pug = require('pug');
+const url = require('url');
+const qs = require('querystring');
+const crypto = require('crypto');
 const mysql = require('mysql');
-
-const connection = mysql.createConnection({
-    host: 'localhost', // centos 서버 아이피
-    user: 'root', // oracle12
-    password: 'Mysql123!@#', // Mysql123!@#
-    database: 'nodejs_shoppingmall' // nodejs_shoppingmall
-});
-
-connection.connect();
-
-// MySQL 데이터베이스에서 아이템을 검색하고 JavaScript 변수에 저장하는 함수
-function getItemsFromDatabase() {
-    return new Promise((resolve, reject) => {
-        // 데이터베이스에서 아이템을 검색하기 위한 쿼리
-        const query = `SELECT * FROM items`;
-
-        // 쿼리 실행
-        connection.query(query, (error, results, fields) => {
-            if (error) {
-                reject(error);
-                return;
-            }
-
-            // 검색된 데이터를 JavaScript 변수에 저장
-            const items = results.map((row) => {
-                return {
-                    price: row.price,
-                    category: row.category,
-                    name: row.name,
-                    link: row.link,
-                    image: row.image,
-                    mallname: row.mallname
-                };
-            });
-
-            resolve(items);
-        });
-    });
-}
-
-// 아이템을 MySQL 데이터베이스에 저장하는 함수
-function saveItemsToDatabase(items) {
-    return new Promise((resolve, reject) => {
-        // 아이템을 반복하여 MySQL 데이터베이스에 저장
-        for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            var price = item.lprice;
-            // 추가 var formattedPrice = price.toString().replace(/\B(?=(\d{3})+(?!\d))/g,
-            // ",") + "원";  Format the price with "원" symbol
-            var category = item.category1;
-            var name = item.title;
-            /* 추가 상품링크, 이미지 , 판매처 */
-            var link = item.link;
-            var image = item.image;
-            var mallName = item.mallName;
-
-            // 변수 값을 MySQL 데이터베이스에 저장
-            const query = `INSERT INTO items (price, category, name, link, image, mallName) VALUES (?, ?, ?, ?, ?, ?)`;
-            const values = [
-                price,
-                category,
-                name,
-                link,
-                image,
-                mallName
-            ];
-            connection.query(query, values, (error, results) => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                console.log('Item saved successfully');
-            });
-        }
-
-        resolve();
-    });
-}
-
-function getUserFromDatabase(username) {
-    return new Promise((resolve, reject) => {
-        // 데이터베이스에서 아이템을 검색하기 위한 쿼리
-        const query = `SELECT * FROM users WHERE username = ?`;
-
-        // 쿼리 실행
-        connection.query(query, [username], (error, results, fields) => {
-            if (error) {
-                reject(error);
-                return;
-            }
-
-            // 검색된 데이터를 JavaScript 변수에 저장
-            const user = results.map((row) => {
-                return {username: row.username, nickname: row.nickname, comment: row.comment, created_at: row.created_at, passwd: row.passwd};
-            });
-
-            resolve(user);
-        });
-    });
-}
-
-function saveUserToDatabase(users) {
-    return new Promise((resolve, reject) => {
-        // 변수 값을 MySQL 데이터베이스에 저장
-        const query = `INSERT INTO users (username, passwd) VALUES (?, ?)`;
-        const values = [users.username, users.password];
-        connection.query(query, values, (error, result) => {
-            if (error) {
-                reject(error);
-                return;
-            }
-            console.log('user saved successfully');
-            resolve();
-        });
-    });
-}
-
-// MySQL 데이터베이스에서 아이템을 삭제하는 함수
-function deleteItemsFromDatabase() {
-    return new Promise((resolve, reject) => {
-        // 삭제할 아이템의 조건을 지정하는 쿼리
-        const query = `DELETE FROM items WHERE category = '사용자가 원하는 카테고리'`;
-
-        // 쿼리 실행
-        connection.query(query, (error, results) => {
-            if (error) {
-                reject(error);
-                return;
-            }
-
-            // 삭제된 행의 개수 반환
-            resolve(results.affectedRows);
-        });
-    });
-}
-
-function saveCommentToDatabase(item, comment, commenter) {
-    return new Promise((resolve, reject) => {
-  
-      const query = `INSERT INTO comments (item_name, comment, commenter) VALUES (?, ?, ?)`; 
-      const values = [item, comment, commenter];
-  
-      connection.query(query, values, (error, results) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-        console.log('Comment saved successfully');
-        resolve();
-      });
-    });
-  }
-
-function getCommentsFromDatabase(item) {
-    return new Promise((resolve, reject) => {
-    // 데이터베이스 쿼리를 사용하여 댓글 조회
-    const query = `SELECT * FROM comments WHERE item_name='${item}'`;
-    // 쿼리 실행
-    connection.query(query, (error, results) => {
-        if (error) {
-            console.error('Error retrieving comments from database: ' + error.stack);
-            return;
-        }
-
-        // 검색된 데이터를 JavaScript 변수에 저장
-        const comment = results.map((row) => {
-            return {commenter: row.commenter, comment: row.comment, created_at: row.created_at};
-        });
-
-        resolve(comment);
-    });
-})}
-
-// 데이터베이스에 평점 저장하는 함수
-function saveRatingToDatabase(item, rating) {
-
-      const query = `INSERT INTO ratings (item, rating) VALUES (?, ?)`;
-      const values = [item, rating];
-  
-      connection.query(query, values, (err, results) => {
-        if (err) {
-          console.error('Error executing MySQL query: ', err);
-          return;
-        }
-  
-        console.log('Rating saved to database.');
-      });
-    };
-  
-
-// 데이터베이스에서 평균 평점 조회하는 함수
-function getRatingFromDatabase(item) {
-    return new Promise((resolve, reject) => {
-
-        const query = `
-          SELECT AVG(rating) AS averageRating
-          FROM ratings
-          WHERE item = ?;
-        `;
-        const values = [item];
-  
-        connection.query(query, values, (err, results) => {
-          if (err) {
-            console.error('Error executing MySQL query: ', err);
-            reject(err);
-            return;
-          }
-  
-          const averageRating = results[0].averageRating;
-          resolve(averageRating);
-  
-        });
-      });
-    };
-
-
-module.exports = {
-    getItemsFromDatabase,
-    saveItemsToDatabase,
-    deleteItemsFromDatabase,
-    getUserFromDatabase,
+const {
     saveUserToDatabase,
+    getUserFromDatabase,
     saveCommentToDatabase,
     getCommentsFromDatabase,
     saveRatingToDatabase,
-    getRatingFromDatabase,
-};
+    getRatingFromDatabase
+} = require('./database');
+const sys = require('./system');
+
+const client_id = 'uR0FsbWPkbkFc2AFaUwy';
+const client_secret = 'PUq6k8Cvip';
+
+// 쿠키 파싱 함수
+const parseCookies = (cookie = '') => cookie
+    .split(';')
+    .map(v => v.split('='))
+    .reduce((acc, [k, v]) => {
+        acc[k.trim()] = decodeURIComponent(v);
+        return acc;
+    }, {});
+
+const session = {}; // 세션 데이터를 저장할 객체
+const users = {}; // 사용자 데이터를 저장할 객체
+var onSearch; // 검색어를 저장할 변수
+var user_ID; // 사용자 ID를 저장할 변수
+app.set('view engine', 'pug');
+
+const connection = mysql.createConnection({
+    host: 'localhost', // 데이터베이스 호스트
+    user: 'root', // 데이터베이스 사용자 이름
+    password: 'Mysql123!@#', // 데이터베이스 비밀번호
+    database: 'nodejs_shoppingmall' // 데이터베이스 이름
+});
+connection.connect(); // 데이터베이스 연결
+
+// 메인 페이지
+app.get('/main', function (req, res) {
+    console.log("IP: " + req.ip + " / 접속");
+    const cookies = parseCookies(req.headers.cookie);
+    const sessionId = cookies.session;
+    const sessionData = session[sessionId];
+
+    if (!sessionData) {
+        res.redirect('/'); // 세션 데이터가 없으면 로그인 페이지로 리디렉션
+        return;
+    }
+
+    res.render('main', {
+        title: 'Main',
+        username: sessionData.username
+    });
+});
+
+// 검색 페이지
+app.get('/search', function (req, res) {
+    onSearch = req.query.query; // 검색어를 저장
+    const api_url = 'https://openapi.naver.com/v1/search/shop.json?query=' +
+        encodeURI(onSearch) + '&display=50';
+    const options = {
+        url: api_url,
+        headers: {
+            'X-Naver-Client-Id': client_id,
+            'X-Naver-Client-Secret': client_secret
+        }
+    };
+
+    axios
+        .get(api_url, options)
+        .then(async (response) => {
+            const data = response.data;
+            const items = data.items;
+            const results = [];
+
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const price = item.lprice;
+                const category = item.category1;
+                const name = item.title;
+                const link = item.link;
+                const image = item.image;
+                const mallName = item.mallName;
+
+                // 댓글 가져오기
+                const comment = await new Promise((resolve, reject) => {
+                    getCommentsFromDatabase(name)
+                        .then(resolve)
+                        .catch(reject);
+                });
+
+                // 별점 가져오기
+                const get_raiting = await new Promise((resolve, reject) => {
+                    getRatingFromDatabase(name)
+                        .then(resolve)
+                        .catch(reject);
+                });
+
+                const comments = comment.map((c) => c.comment);
+                const commenters = comment.map((c) => c.commenter);
+                const created_ats = comment.map((c) => c.created_at);
+                const raiting = await get_raiting;
+                results[i] = {
+                    name,
+                    category,
+                    price,
+                    link,
+                    image,
+                    mallName,
+                    comments,
+                    commenters,
+                    created_ats,
+                    raiting,
+                };
+
+                //DB에 상품 정보 저장
+                const query = `INSERT INTO items (price, category, name, link, image, mallName) VALUES (?, ?, ?, ?, ?, ?)`;
+                const values = [
+                    price,
+                    category,
+                    name,
+                    link,
+                    image,
+                    mallName
+                ];
+
+                connection.query(query, values, (error, results) => {});
+
+            }
+            const select = req.query.select;
+            let sortedResults;
+
+            if (select === 'expensive')
+                sortedResults = sys.DESCarr(results);
+            else if (select === 'cheap')
+                sortedResults = sys.ASCarr(results);
+            else
+                sortedResults = results;
+
+            res.render('result', {
+                results: sortedResults,
+                productname: onSearch
+            });
+            console.log("IP: " + req.ip + " / 검색어: " + onSearch);
+        })
+        .catch((error) => {
+            console.error('Error occurred while getting items:', error);
+            res.status(500).send('Error occurred while getting items:');
+        });
+});
+
+// 회원 가입 처리
+app.post('/register', (req, res) => {
+    const body = [];
+    req
+        .on('data', (chunk) => {
+            body.push(chunk);
+        })
+        .on('end', () => {
+            const data = Buffer
+                .concat(body)
+                .toString();
+            const {username, password} = qs.parse(data);
+
+            getUserFromDatabase(username)
+                .then((user) => {
+                    if (user.length > 0) {
+                        res.send(
+                            "<script>alert('이미 존재하는 사용자 이름입니다.'); window.location.href='/';</script>"
+                        );
+                        return;
+                    }
+
+                    // 회원 정보 저장
+                    const hashedPassword = crypto
+                        .createHash('sha256')
+                        .update(password)
+                        .digest('hex');
+                    const newUser = {
+                        username,
+                        password: hashedPassword
+                    };
+
+                    saveUserToDatabase(newUser)
+                        .then(() => {
+                            res.send(
+                                "<script>alert('회원 가입이 완료되었습니다.'); window.location.href='/';</script>"
+                            );
+                        })
+                        .catch((error) => {
+                            console.error(error);
+                            res
+                                .status(500)
+                                .send('Internal Server Error');
+                        });
+                })
+                .catch((error) => {
+                    console.error(error);
+                    res
+                        .status(500)
+                        .send('Internal Server Error');
+                });
+        });
+});
+
+// 댓글 추가 처리
+app.get('/search/comment', (req, res) => {
+    const item = req.query.itemName; // 상품 이름을 파라미터로 받음
+    const comment = req.query.comment; // 클라이언트에서 전송된 댓글 내용
+    const commenter = user_ID;
+
+    saveCommentToDatabase(item, comment, commenter); // 데이터베이스에 댓글 저장하는 함수 호출
+
+    const redirectURL = '/search?query=' + encodeURIComponent(onSearch);
+    res.redirect(redirectURL);
+});
+
+// 평점 추가 처리
+app.get('/search/rating', (req, res) => {
+    const item = req.query.itemName; // 상품 이름을 파라미터로 받음
+    const rating = req.query.rating; // 클라이언트에서 전송된 평점
+
+    saveRatingToDatabase(item, rating); // 데이터베이스에 평점 저장하는 함수 호출
+
+    const redirectURL = '/search?query=' + encodeURIComponent(onSearch);
+    res.redirect(redirectURL);
+});
+
+// 로그인 처리
+app.post('/login', (req, res) => {
+    const body = [];
+    req
+        .on('data', (chunk) => {
+            body.push(chunk);
+        })
+        .on('end', () => {
+            const data = Buffer
+                .concat(body)
+                .toString();
+            const {username, password} = qs.parse(data);
+            user_ID = username;
+
+            // 회원 정보 저장
+            const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
+
+            getUserFromDatabase(username)
+                .then((user) => {
+                    // 검색된 사용자 정보를 이용하여 작업 수행 로그인 실패 처리
+                    if (user.length === 0 || hashedPassword !== user[0].passwd) {
+                        res.send("<script>alert('로그인 실패'); window.location.href='/login';</script>");
+                        return;
+                    }
+
+                    const expires = new Date();
+                    expires.setMinutes(expires.getMinutes() + 10);
+                    const uniqueInt = Date.now();
+                    session[uniqueInt] = {
+                        username,
+                        expires
+                    };
+
+                    // 세션 정보를 쿠키에 저장
+                    res.cookie('session', uniqueInt, {
+                        expires: expires,
+                        httpOnly: true,
+                        path: '/'
+                    });
+
+                    res.redirect('/main');
+                })
+                .catch((error) => {
+                    // 오류 처리
+                    console.error(error);
+                    res
+                        .status(500)
+                        .send('Internal Server Error');
+                });
+        });
+});
+
+// 진입 페이지 처리
+app.get('/', (req, res) => {
+    const cookies = parseCookies(req.headers.cookie);
+    const sessionId = cookies.session;
+    const sessionData = session[sessionId];
+
+    res.render('entry');
+});
+
+// 로그인 페이지 처리
+app.get('/login', (req, res) => {
+    res.render('login');
+});
+
+// 회원 가입 페이지 처리
+app.get('/register', (req, res) => {
+    res.render('register');
+});
+
+// 서버 실행
+app.listen(3000, function () {
+    console.log('server is running');
+});
