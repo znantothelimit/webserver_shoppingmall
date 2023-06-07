@@ -164,30 +164,26 @@ app.post('/register', (req, res) => {
             body.push(chunk);
         })
         .on('end', () => {
-            const data = Buffer
-                .concat(body)
-                .toString();
+            const data = Buffer.concat(body).toString();
             const {username, password} = qs.parse(data);
 
-            getUserFromDatabase(username)
+            getUserFromDatabase(username) // 이 함수를 통해 user 객체를 반환받음
                 .then((user) => {
-                    if (user.length > 0) {
-                        res.send(
+                    if (user.length > 0) { // So, user 객체를 반환 받았을 때, 값이 들어있다면 데이터베이스에 값이 존재
+                        res.send(          // alert 창 출력
                             "<script>alert('이미 존재하는 사용자 이름입니다.'); window.location.href='/';</script>"
                         );
                         return;
                     }
 
-                    // 회원 정보 저장
-                    const hashedPassword = crypto
-                        .createHash('sha256')
-                        .update(password)
-                        .digest('hex');
+                    // 비밀번호 암호화 후 회원 정보 저장
+                    const hashedPassword = crypto.createHash('sha256').update(password).digest('hex');
                     const newUser = {
                         username,
                         password: hashedPassword
                     };
 
+                    // 만약 아무 이상이 없다면 회원가입 완료 처리 (데이터베이스로 해당 신규 user 적재)
                     saveUserToDatabase(newUser)
                         .then(() => {
                             res.send(
