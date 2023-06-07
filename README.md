@@ -67,12 +67,11 @@ main.js를 통해 네이버 쇼핑으로부터 가져온 상품 데이터들을 
 
 ![Output3](/img/commentsdb.png)
 
-검색결과가 comments 테이블에 저장
-
+상품 댓글이 comments 테이블에 저장
 
 ![Output4](/img/ratingdb.png)
 
-검색 결과가 ratings 테이블에 저장
+상품 평점이 ratings 테이블에 저장
 
 ## Env
 
