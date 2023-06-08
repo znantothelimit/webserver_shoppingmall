@@ -10,6 +10,8 @@ Node.js Express Framework로 구현한 쇼핑몰 웹서버
 
 20190940 정재호
 
+ALL CODE IS WRITTEN BY US
+
 ## Overview
  - Linux Cent OS 상에 Node.js 웹Server 생성 및 웹Server 구조 이해
  - 익스프레스 프레임워크 활용
