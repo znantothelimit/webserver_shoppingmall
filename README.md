@@ -82,4 +82,4 @@ VS Code
 
 ![env](/img/executingincentos.png)
 
-Linux Cent OS7, you need to install npm packages that shell(to executing) needs (command : npm i ~~~)
+Linux Cent OS7, you need to install npm packages that shell(during executing) needs (command : npm i ~~~)

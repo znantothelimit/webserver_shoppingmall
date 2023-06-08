@@ -301,6 +301,6 @@ app.get('/register', (req, res) => {
 });
 
 // 서버실행
-app.listen(3000, '192.168.35.120', function () {
-    console.log('http://192.168.35.120:3000/ app listening on port 3000!');
+app.listen(3000, '192.168.179.50', function () {
+    console.log('http://192.168.179.50:3000/ app listening on port 3000!');
 });
