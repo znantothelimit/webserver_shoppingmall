@@ -76,10 +76,11 @@ main.js를 통해 네이버 쇼핑으로부터 가져온 상품 데이터들을 
 ## Env
 
 ### Develop Env
-VS Code
+
+VS Code in Host OS(Windows 11)
 
 ### Exec Env
 
 ![env](/img/executingincentos.png)
 
-Linux Cent OS7, you need to install npm packages that shell(during executing) needs (command : npm i ~~~)
+Linux Cent OS7(Guest OS), you need to install npm packages that shell(during executing) needs (command : npm i ~~~)
