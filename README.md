@@ -83,4 +83,6 @@ VS Code in Host OS(Windows 11)
 
 ![env](/img/executingincentos.png)
 
-Linux Cent OS7(Guest OS), you need to install npm packages that shell(during executing) needs (command : npm i ~~~)
+Linux Cent OS7(Guest OS)
+
+you need to install npm packages that shell(during executing) needs (command : npm i ~~~)
